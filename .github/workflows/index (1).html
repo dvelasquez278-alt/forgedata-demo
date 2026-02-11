@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ForgeData - Threat Data Factory</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+/* Reset and Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    background: #1a1a1a;
+    color: #e0e0e0;
+    overflow-x: hidden;
+}
+
+/* Top Navigation */
+.top-nav {
+    background: #2C2C2C;
+    border-bottom: 1px solid #3a3a3a;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    height: 64px;
+}
+
+.nav-container {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 0 24px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.nav-logo-text strong {
+    color: #2C2C2C;
+    background: linear-gradient(135deg, #e0e0e0 0%, #fff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.nav-logo-text {
+    color: #0066FF;
+}
+
+.nav-links {
+    display: flex;
+    gap: 32px;
+}
+
+.nav-link {
+    color: #9ca3af;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 8px 0;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+}
+
+.nav-link:hover {
+    color: #e0e0e0;
+}
+
+.nav-link.active {
+    color: #0066FF;
+    border-bottom-color: #0066FF;
+}
+
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.prototype-badge {
+    background: rgba(0, 102, 255, 0.1);
+    color: #00D9FF;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid rgba(0, 217, 255, 0.2);
+}
+
+/* Main Container */
+.main-container {
+    margin-top: 64px;
+    padding: 24px;
+    max-width: 1600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Factory Activity Widget */
+.factory-activity {
+    background: linear-gradient(135deg, rgba(0, 102, 255, 0.08) 0%, rgba(0, 217, 255, 0.08) 100%);
+    border: 1px solid rgba(0, 102, 255, 0.2);
+    border-radius: 12px;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+}
+
+.factory-activity::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent 0%, #0066FF 50%, transparent 100%);
+    opacity: 0.5;
+}
+
+.activity-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.activity-label {
+    font-size: 12px;
+    color: #9ca3af;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.activity-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: #00D9FF;
+    font-variant-numeric: tabular-nums;
+}
+
+.activity-separator {
+    width: 1px;
+    height: 40px;
+    background: rgba(0, 102, 255, 0.3);
+}
+
+.activity-pulse {
+    width: 8px;
+    height: 8px;
+    background: #00D9FF;
+    border-radius: 50%;
+    margin-left: auto;
+    position: relative;
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.activity-pulse::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    background: #00D9FF;
+    border-radius: 50%;
+    animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+@keyframes ping {
+    0% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+    75%, 100% {
+        transform: translate(-50%, -50%) scale(2.5);
+        opacity: 0;
+    }
+}
+
+/* Screen Management */
+.screen {
+    display: none;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.screen.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.screen-image {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+}
+
+/* Back Navigation */
+.back-nav {
+    margin-bottom: 16px;
+}
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #9ca3af;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+.back-link:hover {
+    color: #e0e0e0;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* Toast Notification */
+.toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: #2C2C2C;
+    color: #e0e0e0;
+    padding: 16px 24px;
+    border-radius: 8px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+    border: 1px solid #3a3a3a;
+    border-left: 4px solid #0066FF;
+    transform: translateY(150%);
+    transition: transform 0.3s ease-in-out;
+    z-index: 2000;
+    max-width: 400px;
+    font-size: 14px;
+}
+
+.toast.show {
+    transform: translateY(0);
+}
+
+/* Loading Overlay */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(26, 26, 26, 0.95);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 16px;
+    z-index: 3000;
+}
+
+.loading-overlay.show {
+    display: flex;
+}
+
+.loading-spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid rgba(0, 102, 255, 0.1);
+    border-top-color: #0066FF;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.loading-text {
+    color: #9ca3af;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* Clickable Area Hints */
+area {
+    cursor: pointer;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .nav-links {
+        gap: 20px;
+    }
+    
+    .main-container {
+        padding: 16px;
+    }
+}
+
+@media (max-width: 768px) {
+    .nav-links {
+        display: none;
+    }
+    
+    .factory-activity {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+        padding: 16px;
+    }
+    
+    .activity-separator {
+        display: none;
+    }
+    
+    .activity-pulse {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+    }
+}
+    </style>
+</head>
+<body>
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Loading...</div>
+    </div>
+
+    <!-- Top Navigation -->
+    <nav class="top-nav">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="3" y="3" width="8" height="8" fill="#0066FF"/>
+                    <rect x="13" y="3" width="8" height="8" fill="#00D9FF" opacity="0.6"/>
+                    <rect x="3" y="13" width="8" height="8" fill="#00D9FF" opacity="0.6"/>
+                    <rect x="13" y="13" width="8" height="8" fill="#0066FF"/>
+                </svg>
+                <span class="nav-logo-text"><strong>FORGE</strong>DATA</span>
+            </div>
+            <div class="nav-links">
+                <a href="#" class="nav-link active" data-screen="feed">Feed</a>
+                <a href="#" class="nav-link">Gaps</a>
+                <a href="#" class="nav-link">Rules & Packs</a>
+                <a href="#" class="nav-link">Coverage</a>
+                <a href="#" class="nav-link">Reports</a>
+            </div>
+            <div class="nav-right">
+                <span class="prototype-badge">MVP Prototype</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="main-container">
+        
+        <!-- SCREEN 1: FEED -->
+        <div id="screen-feed" class="screen active">
+            <!-- Factory Activity Widget -->
+            <div class="factory-activity">
+                <div class="activity-item">
+                    <div class="activity-label">Last factory run</div>
+                    <div class="activity-value" id="last-run-time">2h ago</div>
+                </div>
+                <div class="activity-separator"></div>
+                <div class="activity-item">
+                    <div class="activity-label">Coverage tests today</div>
+                    <div class="activity-value" id="tests-today">312</div>
+                </div>
+                <div class="activity-pulse"></div>
+            </div>
+
+            <img src="https://www.genspark.ai/api/files/s/Mle9Lo0I?cache_control=3600" 
+                 alt="ForgeData Feed Interface" 
+                 class="screen-image"
+                 usemap="#feed-map">
+            
+            <!-- Image Map for Feed clickable areas -->
+            <map name="feed-map">
+                <area shape="rect" coords="48,200,1300,240" href="#" alt="CVE Row 1" class="clickable-row" data-target="cve-detail">
+                <area shape="rect" coords="48,240,1300,280" href="#" alt="CVE Row 2" class="clickable-row" data-target="cve-detail">
+                <area shape="rect" coords="48,280,1300,320" href="#" alt="CVE Row 3" class="clickable-row" data-target="cve-detail">
+                <area shape="rect" coords="48,320,1300,360" href="#" alt="CVE Row 4" class="clickable-row" data-target="cve-detail">
+                <area shape="rect" coords="48,360,1300,400" href="#" alt="CVE Row 5" class="clickable-row" data-target="cve-detail">
+            </map>
+        </div>
+
+        <!-- SCREEN 2: CVE DETAIL -->
+        <div id="screen-cve-detail" class="screen">
+            <!-- Factory Activity Widget -->
+            <div class="factory-activity">
+                <div class="activity-item">
+                    <div class="activity-label">Last factory run</div>
+                    <div class="activity-value">2h ago</div>
+                </div>
+                <div class="activity-separator"></div>
+                <div class="activity-item">
+                    <div class="activity-label">Coverage tests today</div>
+                    <div class="activity-value">312</div>
+                </div>
+                <div class="activity-pulse"></div>
+            </div>
+
+            <div class="back-nav">
+                <a href="#" class="back-link" data-target="feed">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Back to Feed
+                </a>
+            </div>
+            
+            <img src="https://www.genspark.ai/api/files/s/SeonHFMD?cache_control=3600" 
+                 alt="ForgeData CVE Detail" 
+                 class="screen-image"
+                 usemap="#cve-detail-map">
+            
+            <!-- Image Map for CVE Detail clickable areas -->
+            <map name="cve-detail-map">
+                <area shape="rect" coords="900,220,1100,260" href="#" alt="Download Pack" class="action-button" data-action="download-pack">
+                <area shape="rect" coords="48,580,260,680" href="#" alt="Sigma Pack" class="clickable-pack" data-target="rule-detail" data-format="Sigma">
+                <area shape="rect" coords="280,580,492,680" href="#" alt="YARA Pack" class="clickable-pack" data-target="rule-detail" data-format="YARA">
+                <area shape="rect" coords="512,580,724,680" href="#" alt="KQL Pack" class="clickable-pack" data-target="rule-detail" data-format="KQL">
+                <area shape="rect" coords="744,580,956,680" href="#" alt="Suricata Pack" class="clickable-pack" data-target="rule-detail" data-format="Suricata">
+            </map>
+        </div>
+
+        <!-- SCREEN 3: RULE DETAIL -->
+        <div id="screen-rule-detail" class="screen">
+            <div class="back-nav">
+                <a href="#" class="back-link" data-target="cve-detail">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Back to CVE Detail
+                </a>
+            </div>
+            
+            <img src="https://www.genspark.ai/api/files/s/4METo2wi?cache_control=3600" 
+                 alt="ForgeData Rule Detail" 
+                 class="screen-image"
+                 usemap="#rule-detail-map">
+            
+            <!-- Image Map for Rule Detail clickable areas -->
+            <map name="rule-detail-map">
+                <area shape="rect" coords="900,120,1000,160" href="#" alt="Copy" class="action-button" data-action="copy-rule">
+                <area shape="rect" coords="1010,120,1140,160" href="#" alt="Download" class="action-button" data-action="download-pack">
+                <area shape="rect" coords="1150,120,1280,160" href="#" alt="Push to SIEM" class="action-button" data-action="push-siem">
+            </map>
+        </div>
+
+    </main>
+
+    <script>
+// Prototype State Management
+const prototypeState = {
+    currentScreen: 'feed',
+    selectedCVE: null,
+    selectedFormat: null,
+    history: ['feed']
+};
+
+// Initialize on load
+document.addEventListener('DOMContentLoaded', () => {
+    initializePrototype();
+    updateFactoryActivity();
+    setInterval(updateFactoryActivity, 30000);
+});
+
+// Initialize prototype interactions
+function initializePrototype() {
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const target = link.getAttribute('data-screen');
+            if (target) {
+                navigateToScreen(target);
+            }
+        });
+    });
+
+    document.querySelectorAll('.back-link').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const target = link.getAttribute('data-target');
+            navigateToScreen(target, false);
+        });
+    });
+
+    document.querySelectorAll('.clickable-row').forEach(area => {
+        area.addEventListener('click', (e) => {
+            e.preventDefault();
+            const target = area.getAttribute('data-target');
+            prototypeState.selectedCVE = 'CVE-2026-1427';
+            showLoading();
+            setTimeout(() => {
+                navigateToScreen(target);
+                hideLoading();
+            }, 400 + Math.random() * 200);
+        });
+    });
+
+    document.querySelectorAll('.clickable-pack').forEach(area => {
+        area.addEventListener('click', (e) => {
+            e.preventDefault();
+            const target = area.getAttribute('data-target');
+            const format = area.getAttribute('data-format');
+            prototypeState.selectedFormat = format;
+            showLoading();
+            setTimeout(() => {
+                navigateToScreen(target);
+                hideLoading();
+            }, 300 + Math.random() * 200);
+        });
+    });
+
+    document.querySelectorAll('.action-button').forEach(area => {
+        area.addEventListener('click', (e) => {
+            e.preventDefault();
+            const action = area.getAttribute('data-action');
+            handleAction(action);
+        });
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && prototypeState.history.length > 1) {
+            prototypeState.history.pop();
+            const previousScreen = prototypeState.history[prototypeState.history.length - 1];
+            navigateToScreen(previousScreen, false);
+        }
+    });
+}
+
+function navigateToScreen(screenId, addToHistory = true) {
+    document.querySelectorAll('.screen').forEach(screen => {
+        screen.classList.remove('active');
+    });
+
+    const targetScreen = document.getElementById(`screen-${screenId}`);
+    if (targetScreen) {
+        targetScreen.classList.add('active');
+        prototypeState.currentScreen = screenId;
+        
+        if (addToHistory) {
+            prototypeState.history.push(screenId);
+        }
+
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('data-screen') === screenId) {
+                link.classList.add('active');
+            }
+        });
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+}
+
+function handleAction(action) {
+    let message = '';
+    
+    switch(action) {
+        case 'copy-rule':
+            message = '✓ Rule copied to clipboard';
+            break;
+        case 'download-pack':
+            message = '✓ Detection pack downloaded';
+            break;
+        case 'push-siem':
+            message = '✓ Rule pushed to SIEM (simulated)';
+            break;
+        default:
+            message = '✓ Action completed';
+    }
+    
+    showToast(message);
+}
+
+function showToast(message) {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.classList.add('show');
+    
+    setTimeout(() => {
+        toast.classList.remove('show');
+    }, 3000);
+}
+
+function showLoading() {
+    const overlay = document.getElementById('loading-overlay');
+    overlay.classList.add('show');
+}
+
+function hideLoading() {
+    const overlay = document.getElementById('loading-overlay');
+    overlay.classList.remove('show');
+}
+
+function updateFactoryActivity() {
+    const now = new Date();
+    const hoursAgo = [1, 2, 3][Math.floor(Math.random() * 3)];
+    const testsToday = 280 + Math.floor(Math.random() * 80);
+    
+    let timeText = `${hoursAgo}h ago`;
+    if (hoursAgo === 1 && Math.random() > 0.5) {
+        const minutesAgo = 15 + Math.floor(Math.random() * 45);
+        timeText = `${minutesAgo}m ago`;
+    }
+    
+    const lastRunElements = document.querySelectorAll('#last-run-time, .activity-value');
+    lastRunElements.forEach((el, index) => {
+        if (index % 2 === 0) {
+            el.textContent = timeText;
+            el.style.animation = 'none';
+            setTimeout(() => {
+                el.style.animation = 'fadeIn 0.3s ease-in-out';
+            }, 10);
+        }
+    });
+    
+    const testsElements = document.querySelectorAll('#tests-today');
+    testsElements.forEach(el => {
+        animateValue(el, parseInt(el.textContent) || testsToday, testsToday, 600);
+    });
+}
+
+function animateValue(element, start, end, duration) {
+    const startTime = performance.now();
+    
+    const updateNumber = (currentTime) => {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const easeProgress = 1 - Math.pow(1 - progress, 3);
+        const current = Math.floor(start + (end - start) * easeProgress);
+        
+        element.textContent = current.toString();
+        
+        if (progress < 1) {
+            requestAnimationFrame(updateNumber);
+        }
+    };
+    
+    requestAnimationFrame(updateNumber);
+}
+
+window.prototypeState = prototypeState;
+    </script>
+</body>
+</html>
